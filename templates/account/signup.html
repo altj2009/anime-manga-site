@@ -1,0 +1,94 @@
+{% extends "appname/base.html" %}
+{% load static i18n %}
+
+{% block title %}Регистрация — AnimeManga{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="auth-particles"></div>
+
+    <div class="auth-card">
+        <div class="auth-side">
+            <div class="auth-avatar-wrap">
+                <div class="avatar-glow"></div>
+                <div class="avatar-ring"></div>
+                <img class="auth-avatar"
+                     src="{% static 'img/avatar-logout.jpeg' %}"
+                     alt="Аниме"
+                     onerror="this.src='https://i.pravatar.cc/300?img=5'">
+            </div>
+            <div class="auth-welcome">Добро пожаловать!</div>
+            <div class="auth-hint">Создай аккаунт и смотри аниме<br>читай мангу ✨</div>
+        </div>
+
+        <div class="auth-main">
+            <h1>Регистрация</h1>
+            <p class="auth-sub">Заполни поля, чтобы создать аккаунт</p>
+
+            {% if form.non_field_errors %}
+                <div class="auth-errors">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <form method="post" action="{% url 'account_signup' %}">
+                {% csrf_token %}
+
+                <div>
+                    <label for="id_username">Имя пользователя</label>
+                    <input type="text" name="username" id="id_username"
+                           placeholder="anime_lover" required autofocus
+                           value="{{ form.username.value|default:'' }}">
+                    {% if form.username.errors %}
+                        <div class="auth-errors">{{ form.username.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_email">Email</label>
+                    <input type="email" name="email" id="id_email"
+                           placeholder="user@example.com" required
+                           value="{{ form.email.value|default:'' }}">
+                    {% if form.email.errors %}
+                        <div class="auth-errors">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_password1">Пароль</label>
+                    <input type="password" name="password1" id="id_password1"
+                           placeholder="Минимум 8 символов" required>
+                    {% if form.password1.errors %}
+                        <div class="auth-errors">{{ form.password1.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_password2">Повтор пароля</label>
+                    <input type="password" name="password2" id="id_password2"
+                           placeholder="Повтори пароль" required>
+                    {% if form.password2.errors %}
+                        <div class="auth-errors">{{ form.password2.errors }}</div>
+                    {% endif %}
+                </div>
+
+                {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}"
+                           value="{{ redirect_field_value }}">
+                {% endif %}
+
+                <button type="submit">Создать аккаунт →</button>
+            </form>
+
+            <div class="auth-links">
+                <p>Уже есть аккаунт?
+                    <a href="{% url 'account_login' %}">Войти</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

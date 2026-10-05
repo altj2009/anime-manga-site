@@ -1,0 +1,71 @@
+{% extends "appname/base.html" %}
+{% load static i18n %}
+
+{% block title %}Пока-пока!{% endblock %}
+
+{% block content %}
+<div class="logout-hero">
+    {# ==== анимированный фон ==== #}
+    <div class="logout-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    {# ==== частицы ==== #}
+    <div class="particles" id="particles"></div>
+
+    {# ==== центральный аватар ==== #}
+    <div class="logout-avatar-wrap">
+        <div class="avatar-glow"></div>
+        <div class="avatar-ring"></div>
+        <img class="logout-avatar"
+             src="{% static 'img/avatar-logout.jpeg' %}"
+             alt="Пока!"
+             onerror="this.src='https://i.pravatar.cc/400?img=12'">
+    </div>
+
+    {# ==== текст внизу ==== #}
+    <h1 class="logout-title">Пока-пока!</h1>
+    <p class="logout-sub">Возвращайся скорее ✨</p>
+
+    {# ==== действия ==== #}
+    <div class="logout-actions">
+        <a href="{% url 'appname:home' %}" class="logout-btn logout-btn-primary">
+            🏠 На главную
+        </a>
+
+        <form method="post" action="{% url 'account_logout' %}" style="margin:0;">
+            {% csrf_token %}
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+            {% endif %}
+            <button type="submit" class="logout-btn logout-btn-ghost">
+                🚪 Выйти из аккаунта
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+// ==== генерация частиц ====
+(function () {
+    const container = document.getElementById('particles');
+    if (!container) return;
+
+    const COUNT = 40;
+    for (let i = 0; i < COUNT; i++) {
+        const p = document.createElement('span');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDelay = (Math.random() * 8) + 's';
+        p.style.animationDuration = (6 + Math.random() * 6) + 's';
+        p.style.opacity = 0.2 + Math.random() * 0.6;
+        const size = 2 + Math.random() * 4;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        container.appendChild(p);
+    }
+})();
+</script>
+{% endblock %}

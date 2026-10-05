@@ -1,0 +1,82 @@
+{% extends "appname/base.html" %}
+{% load static i18n %}
+
+{% block title %}Вход — AnimeManga{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="auth-particles"></div>
+
+    <div class="auth-card">
+        {# ==== левая колонка: аватар ==== #}
+        <div class="auth-side">
+            <div class="auth-avatar-wrap">
+                <div class="avatar-glow"></div>
+                <div class="avatar-ring"></div>
+                <img class="auth-avatar"
+                     src="{% static 'img/avatar-logout.jpeg' %}"
+                     alt="Аниме"
+                     onerror="this.src='https://i.pravatar.cc/300?img=12'">
+            </div>
+            <div class="auth-welcome">С возвращением!</div>
+            <div class="auth-hint">Рады видеть тебя снова ✨</div>
+        </div>
+
+        {# ==== правая колонка: форма ==== #}
+        <div class="auth-main">
+            <h1>Вход в аккаунт</h1>
+            <p class="auth-sub">Введи данные, чтобы продолжить</p>
+
+            {% if form.non_field_errors %}
+                <div class="auth-errors">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <form method="post" action="{% url 'account_login' %}">
+                {% csrf_token %}
+
+                <div>
+                    <label for="id_login">Email или логин</label>
+                    <input type="text" name="login" id="id_login"
+                           placeholder="user@example.com" required autofocus
+                           value="{{ form.login.value|default:'' }}">
+                    {% if form.login.errors %}
+                        <div class="auth-errors">{{ form.login.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_password">Пароль</label>
+                    <input type="password" name="password" id="id_password"
+                           placeholder="••••••••" required>
+                    {% if form.password.errors %}
+                        <div class="auth-errors">{{ form.password.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <label class="auth-check">
+                    <input type="checkbox" name="remember"> Запомнить меня
+                </label>
+
+                {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}"
+                           value="{{ redirect_field_value }}">
+                {% endif %}
+
+                <button type="submit">Войти →</button>
+            </form>
+
+            <div class="auth-links">
+                <p><a href="{% url 'account_reset_password' %}">Забыли пароль?</a></p>
+                <p>Нет аккаунта?
+                    <a href="{% url 'account_signup' %}">Зарегистрироваться</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

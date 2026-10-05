@@ -1,0 +1,98 @@
+{% extends 'appname/base.html' %}
+{% load static %}
+{% block title %}Поиск: {{ query }}{% endblock %}
+{% block content %}
+
+<h1>🔍 Поиск</h1>
+
+{# Показываем запрос #}
+{% if query %}
+    <p style="color:#a0a0b8; margin-bottom:25px;">
+        Результаты по запросу: <strong style="color:#a78bfa;">«{{ query }}»</strong>
+    </p>
+{% else %}
+    <p style="color:#a0a0b8; margin-bottom:25px;">
+        Введи название аниме или манги в поиск сверху.
+    </p>
+{% endif %}
+
+{# ==== АНИМЕ ==== #}
+{% if anime_results %}
+    <h2>🎬 Аниме ({{ anime_results|length }})</h2>
+    <div class="grid">
+        {% for anime in anime_results %}
+        <a href="{{ anime.get_absolute_url }}" class="card">
+            {% if anime.poster %}
+                <img src="{{ anime.poster.url }}" alt="{{ anime.title }}">
+            {% endif %}
+            <div class="card-body">
+                <div class="card-title">{{ anime.title }}</div>
+                <div class="card-meta">
+                    {{ anime.year|default:'' }}
+                    {% if anime.year %}•{% endif %}
+                    ★ {{ anime.rating }}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{# ==== МАНГА ==== #}
+{% if manga_results %}
+    <h2>📖 Манга ({{ manga_results|length }})</h2>
+    <div class="grid">
+        {% for manga in manga_results %}
+        <a href="{{ manga.get_absolute_url }}" class="card">
+            {% if manga.cover %}
+                <img src="{{ manga.cover.url }}" alt="{{ manga.title }}">
+            {% endif %}
+            <div class="card-body">
+                <div class="card-title">{{ manga.title }}</div>
+                <div class="card-meta">
+                    {{ manga.author|default:'' }}
+                    {% if manga.author %}•{% endif %}
+                    ★ {{ manga.rating }}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{# ==== ЕСЛИ НИЧЕГО НЕ НАЙДЕНО ==== #}
+{% if query and not anime_results and not manga_results %}
+    <div class="empty-state">
+        <div class="empty-icon">🕵️</div>
+        <h2 style="color:#fff;">Ничего не найдено</h2>
+        <p style="color:#a0a0b8;">По запросу «{{ query }}» совпадений нет.</p>
+        <p style="color:#666; font-size:14px;">
+            Попробуй другое название или проверь раскладку.
+        </p>
+        <div style="margin-top:20px;">
+            <a href="{% url 'appname:anime_list' %}" class="btn-primary">Смотреть каталог аниме</a>
+        </div>
+    </div>
+{% endif %}
+
+<style>
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    .empty-icon { font-size: 70px; margin-bottom: 15px; }
+    .empty-state h2 { margin-bottom: 10px; }
+    .empty-state p { margin-bottom: 10px; }
+    .btn-primary {
+        display: inline-block;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+</style>
+
+{% endblock %}

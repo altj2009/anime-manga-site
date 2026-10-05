@@ -1,0 +1,39 @@
+{% extends 'appname/base.html' %}
+{% block title %}Манга{% endblock %}
+{% block content %}
+<h1>Манга</h1>
+<form method="get" class="filters">
+    <input type="text" name="q" placeholder="Поиск..." value="{{ query|default:'' }}">
+    <select name="genre">
+        <option value="">Все жанры</option>
+        {% for g in genres %}
+        <option value="{{ g.slug }}" {% if g.slug == current_genre %}selected{% endif %}>{{ g.name }}</option>
+        {% endfor %}
+    </select>
+    <select name="status">
+        <option value="">Все статусы</option>
+        <option value="ongoing" {% if current_status == 'ongoing' %}selected{% endif %}>Выходит</option>
+        <option value="completed" {% if current_status == 'completed' %}selected{% endif %}>Завершена</option>
+        <option value="announced" {% if current_status == 'announced' %}selected{% endif %}>Анонс</option>
+    </select>
+    <button type="submit" class="btn">Применить</button>
+</form>
+
+<div class="grid">
+    {% for manga in page_obj %}
+    <a href="{{ manga.get_absolute_url }}" class="card">
+        {% if manga.cover %}<img src="{{ manga.cover.url }}" alt="">{% endif %}
+        <div class="card-body">
+            <div class="card-title">{{ manga.title }}</div>
+            <div class="card-meta">{{ manga.author|default:'' }} • ★ {{ manga.rating }}</div>
+        </div>
+    </a>
+    {% empty %}<p>Ничего не найдено.</p>{% endfor %}
+</div>
+
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">← Назад</a>{% endif %}
+    <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Вперёд →</a>{% endif %}
+</div>
+{% endblock %}

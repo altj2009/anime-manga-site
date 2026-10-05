@@ -1,0 +1,11 @@
+{% extends 'appname/base.html' %}
+{% block title %}{{ anime.title }} — Эпизод {{ episode.number }}{% endblock %}
+{% block content %}
+<h1>{{ anime.title }} — Эпизод {{ episode.number }}</h1>
+{% if episode.title %}<h3>{{ episode.title }}</h3>{% endif %}
+<div class="player">
+    <iframe src="{{ episode.video_url }}" width="100%" height="100%"
+            frameborder="0" allowfullscreen></iframe>
+</div>
+<a href="{{ anime.get_absolute_url }}" class="btn">← К списку эпизодов</a>
+{% endblock %}

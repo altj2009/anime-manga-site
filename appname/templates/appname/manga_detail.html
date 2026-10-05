@@ -1,0 +1,33 @@
+{% extends 'appname/base.html' %}
+{% block title %}{{ manga.title }}{% endblock %}
+{% block content %}
+<div class="detail-header">
+    {% if manga.cover %}<img src="{{ manga.cover.url }}" class="detail-poster" alt="">{% endif %}
+    <div class="detail-info">
+        <h1>{{ manga.title }}</h1>
+        {% if manga.title_original %}<p><em>{{ manga.title_original }}</em></p>{% endif %}
+        <p><strong>Автор:</strong> {{ manga.author|default:'—' }}</p>
+        <p><strong>Художник:</strong> {{ manga.artist|default:'—' }}</p>
+        <p><strong>Год:</strong> {{ manga.year|default:'—' }}</p>
+        <p><strong>Статус:</strong> {{ manga.get_status_display }}</p>
+        <p><strong>Рейтинг:</strong> ★ {{ manga.rating }}</p>
+        <div style="margin:15px 0;">
+            {% for g in manga.genres.all %}
+                <a href="{% url 'appname:manga_list' %}?genre={{ g.slug }}" class="tag">{{ g.name }}</a>
+            {% endfor %}
+        </div>
+        <h3>Описание</h3>
+        <p>{{ manga.description }}</p>
+    </div>
+</div>
+
+<div class="list-box">
+    <h2>Главы</h2>
+    {% for chapter in chapters %}
+        <a href="{% url 'appname:chapter_read' manga.slug chapter.number %}" class="list-item">
+            <span>Глава {{ chapter.number }}{% if chapter.title %} — {{ chapter.title }}{% endif %}</span>
+            {% if chapter.volume %}<span>Том {{ chapter.volume }}</span>{% endif %}
+        </a>
+    {% empty %}<p>Главы пока не добавлены.</p>{% endfor %}
+</div>
+{% endblock %}

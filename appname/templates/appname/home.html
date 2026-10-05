@@ -1,0 +1,118 @@
+{% extends 'appname/base.html' %}
+{% block title %}Главная — AnimeManga{% endblock %}
+
+{% block content %}
+
+{# ===================== КАРУСЕЛЬ ===================== #}
+{% if top_week %}
+<section class="carousel">
+    <h2>🔥 Топ-5 за неделю</h2>
+    <div class="carousel-track" id="carouselTrack">
+        {% for anime in top_week %}
+        <div class="carousel-slide">
+            <a href="{{ anime.get_absolute_url }}" class="carousel-link">
+                {% if anime.poster %}
+                    <img src="{{ anime.poster.url }}" alt="{{ anime.title }}">
+                {% else %}
+                    <div class="carousel-placeholder">{{ anime.title }}</div>
+                {% endif %}
+                <div class="carousel-overlay">
+                    <div class="carousel-rank">#{{ forloop.counter }}</div>
+                    <h3>{{ anime.title }}</h3>
+                    <p class="carousel-meta">
+                        {{ anime.year|default:'' }} • ★ {{ anime.rating }}
+                        • 👁 {{ anime.week_views|default:anime.views }} за неделю
+                    </p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button class="carousel-btn carousel-prev" onclick="slideCarousel(-1)">‹</button>
+    <button class="carousel-btn carousel-next" onclick="slideCarousel(1)">›</button>
+
+    <div class="carousel-dots" id="carouselDots">
+    {% for anime in top_week %}
+        <span class="dot {% if forloop.first %}active{% endif %}"
+              data-index="{{ forloop.counter0 }}"></span>
+    {% endfor %}
+</div>
+</section>
+
+<script>
+(function () {
+    const track = document.getElementById('carouselTrack');
+    if (!track) return;
+    const slides = track.children;
+    const dots = document.querySelectorAll('#carouselDots .dot');
+    let current = 0;
+    let timer = null;
+
+    function update() {
+        track.style.transform = `translateX(-${current * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    }
+
+    window.slideCarousel = function (dir) {
+        current = (current + dir + slides.length) % slides.length;
+        update();
+        restartAutoplay();
+    };
+
+    // клик по точке через data-index
+    dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            const i = parseInt(dot.dataset.index, 10);
+            if (!isNaN(i)) {
+                current = i;
+                update();
+                restartAutoplay();
+            }
+        });
+    });
+
+    function autoplay() {
+        timer = setInterval(() => {
+            current = (current + 1) % slides.length;
+            update();
+        }, 5000);
+    }
+
+    function restartAutoplay() {
+        clearInterval(timer);
+        autoplay();
+    }
+
+    autoplay();
+})();
+</script>
+{% endif %}
+
+{# ===================== ОСТАЛЬНОЕ ===================== #}
+<h1>Новое аниме</h1>
+<div class="grid">
+    {% for anime in latest_anime %}
+    <a href="{{ anime.get_absolute_url }}" class="card">
+        {% if anime.poster %}<img src="{{ anime.poster.url }}" alt="">{% endif %}
+        <div class="card-body">
+            <div class="card-title">{{ anime.title }}</div>
+            <div class="card-meta">{{ anime.year|default:'' }} • ★ {{ anime.rating }}</div>
+        </div>
+    </a>
+    {% empty %}<p>Пока ничего нет.</p>{% endfor %}
+</div>
+
+<h1>Новая манга</h1>
+<div class="grid">
+    {% for manga in latest_manga %}
+    <a href="{{ manga.get_absolute_url }}" class="card">
+        {% if manga.cover %}<img src="{{ manga.cover.url }}" alt="">{% endif %}
+        <div class="card-body">
+            <div class="card-title">{{ manga.title }}</div>
+            <div class="card-meta">{{ manga.author|default:'' }} • ★ {{ manga.rating }}</div>
+        </div>
+    </a>
+    {% empty %}<p>Пока ничего нет.</p>{% endfor %}
+</div>
+{% endblock %}

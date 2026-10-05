@@ -1,0 +1,34 @@
+{% extends 'appname/base.html' %}
+{% block title %}{{ anime.title }}{% endblock %}
+{% block content %}
+<div class="detail-header">
+    {% if anime.poster %}<img src="{{ anime.poster.url }}" class="detail-poster" alt="">{% endif %}
+    <div class="detail-info">
+        <h1>{{ anime.title }}</h1>
+        {% if anime.title_original %}<p><em>{{ anime.title_original }}</em></p>{% endif %}
+        <p><strong>Тип:</strong> {{ anime.get_anime_type_display }}</p>
+        <p><strong>Год:</strong> {{ anime.year|default:'—' }}</p>
+        <p><strong>Статус:</strong> {{ anime.get_status_display }}</p>
+        <p><strong>Эпизодов:</strong> {{ anime.episodes_count }}</p>
+        <p><strong>Рейтинг:</strong> ★ {{ anime.rating }}</p>
+        {% if anime.studio %}<p><strong>Студия:</strong> {{ anime.studio.name }}</p>{% endif %}
+        <div style="margin:15px 0;">
+            {% for g in anime.genres.all %}
+                <a href="{% url 'appname:anime_list' %}?genre={{ g.slug }}" class="tag">{{ g.name }}</a>
+            {% endfor %}
+        </div>
+        <h3>Описание</h3>
+        <p>{{ anime.description }}</p>
+    </div>
+</div>
+
+<div class="list-box">
+    <h2>Эпизоды</h2>
+    {% for episode in episodes %}
+        <a href="{% url 'appname:episode_watch' anime.slug episode.number %}" class="list-item">
+            <span>Эпизод {{ episode.number }}{% if episode.title %} — {{ episode.title }}{% endif %}</span>
+            <span>{{ episode.duration }} мин.</span>
+        </a>
+    {% empty %}<p>Эпизоды пока не добавлены.</p>{% endfor %}
+</div>
+{% endblock %}

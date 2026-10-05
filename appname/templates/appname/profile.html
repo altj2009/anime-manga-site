@@ -1,0 +1,307 @@
+{% extends 'appname/base.html' %}
+{% load static %}
+{% block title %}Профиль — {{ user.username }}{% endblock %}
+{% block content %}
+
+{# ==== HERO-БЛОК ПРОФИЛЯ ==== #}
+<div class="profile-hero">
+    <div class="hero-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="particles"></div>
+
+    <div class="hero-content">
+        <div class="profile-avatar-wrap">
+            <div class="avatar-glow"></div>
+            <div class="avatar-ring"></div>
+            <div class="profile-avatar-letter">{{ user.username|first|upper }}</div>
+        </div>
+
+        <div class="profile-text">
+            <h1>{{ user.username }}</h1>
+            {% if user.email %}
+                <p class="profile-email">📧 {{ user.email }}</p>
+            {% endif %}
+            <p class="profile-since">🗓 На сайте с {{ user.date_joined|date:"d.m.Y" }}</p>
+        </div>
+    </div>
+</div>
+
+{# ==== СТАТИСТИКА ==== #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">👁</div>
+        <div class="stat-num">{{ total_views }}</div>
+        <div class="stat-label">всего просмотров</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-num">{{ watched_week }}</div>
+        <div class="stat-label">за неделю</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-num">{{ user.date_joined|timesince }}</div>
+        <div class="stat-label">с нами</div>
+    </div>
+</div>
+
+{# ==== ИСТОРИЯ ПРОСМОТРОВ ==== #}
+<div class="list-box">
+    <h2>🎬 Недавно смотрел(а)</h2>
+
+    {% for view in recently_watched %}
+        <a href="{{ view.anime.get_absolute_url }}" class="history-item">
+            <div class="history-poster">
+                {% if view.anime.poster %}
+                    <img src="{{ view.anime.poster.url }}" alt="">
+                {% else %}
+                    <span>{{ view.anime.title|first|upper }}</span>
+                {% endif %}
+            </div>
+            <div class="history-info">
+                <div class="history-title">{{ view.anime.title }}</div>
+                <div class="history-meta">
+                    {{ view.anime.year|default:'' }}
+                    {% if view.anime.year %} • {% endif %}
+                    ★ {{ view.anime.rating }}
+                </div>
+            </div>
+            <div class="history-date">{{ view.created_at|date:"d.m.Y H:i" }}</div>
+        </a>
+    {% empty %}
+        <div class="empty-state">
+            <div class="empty-icon">🍿</div>
+            <p>Ты пока ничего не смотрел(а).</p>
+            <a href="{% url 'appname:anime_list' %}" class="btn-primary">К каталогу аниме →</a>
+        </div>
+    {% endfor %}
+</div>
+
+{# ==== КНОПКИ ДЕЙСТВИЙ ==== #}
+<div class="profile-actions">
+    <a href="{% url 'account_change_password' %}" class="btn-primary">🔒 Сменить пароль</a>
+    <a href="{% url 'account_logout' %}" class="btn-ghost">🚪 Выйти</a>
+</div>
+
+{# ==== СТИЛИ ==== #}
+<style>
+    /* Hero */
+    .profile-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        background: #0f0f1a;
+        padding: 45px 35px;
+        margin-bottom: 25px;
+        isolation: isolate;
+    }
+    .hero-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+    }
+    .particles {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+    }
+    .particles .particle {
+        position: absolute;
+        bottom: -10px;
+        background: #fff;
+        border-radius: 50%;
+        animation: rise linear infinite;
+        box-shadow: 0 0 6px rgba(255,255,255,.8);
+    }
+    .hero-content {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+    .profile-avatar-wrap {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        flex-shrink: 0;
+    }
+    .profile-avatar-letter {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a78bfa, #ec4899);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 62px;
+        font-weight: bold;
+        color: #fff;
+        position: relative;
+        z-index: 3;
+        box-shadow: 0 0 0 6px rgba(255,255,255,.08),
+                    0 15px 40px rgba(167,139,250,.5);
+    }
+    .profile-avatar-wrap .avatar-ring {
+        position: absolute;
+        inset: -12px;
+        border-radius: 50%;
+        border: 2px dashed rgba(167,139,250,.6);
+        animation: spinSlow 22s linear infinite;
+        z-index: 1;
+    }
+    .profile-avatar-wrap .avatar-glow {
+        position: absolute;
+        inset: -25px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(167,139,250,.55), transparent 70%);
+        animation: pulseGlow 3s ease-in-out infinite;
+        z-index: 0;
+    }
+    .profile-text { flex: 1; min-width: 220px; }
+    .profile-text h1 {
+        font-size: 38px;
+        color: #fff;
+        margin: 0 0 8px;
+        background: linear-gradient(135deg, #fff, #c8b8f8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .profile-email { color: #c0c0d8; font-size: 15px; margin-bottom: 6px; }
+    .profile-since { color: #888; font-size: 14px; }
+
+    /* Статистика */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+    .stat-card {
+        background: #1a1a2e;
+        padding: 24px 20px;
+        border-radius: 16px;
+        text-align: center;
+        border: 1px solid rgba(167,139,250,.15);
+        transition: transform .2s, border-color .2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(167,139,250,.4);
+    }
+    .stat-icon { font-size: 26px; margin-bottom: 8px; }
+    .stat-num {
+        font-size: 30px;
+        font-weight: 700;
+        color: #a78bfa;
+        margin-bottom: 4px;
+        line-height: 1.1;
+    }
+    .stat-label { color: #888; font-size: 13px; }
+
+    /* История */
+    .history-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: inherit;
+        transition: background .2s, transform .2s;
+        border-bottom: 1px solid #2a2a3e;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-item:hover {
+        background: #2a2a3e;
+        transform: translateX(4px);
+    }
+    .history-poster {
+        width: 50px;
+        height: 66px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #2a2a3e, #1a1a2e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .history-poster img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .history-poster span {
+        color: #a78bfa;
+        font-size: 22px;
+        font-weight: bold;
+    }
+    .history-info { flex: 1; min-width: 0; }
+    .history-title {
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .history-meta { color: #888; font-size: 13px; }
+    .history-date { color: #666; font-size: 13px; white-space: nowrap; }
+
+    /* Пустое состояние */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+    .empty-icon { font-size: 50px; margin-bottom: 12px; }
+    .empty-state p { color: #888; margin-bottom: 18px; }
+
+    /* Кнопки */
+    .profile-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .btn-primary, .btn-ghost {
+        padding: 12px 22px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: transform .2s, box-shadow .2s, background .2s;
+        display: inline-block;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(167,139,250,.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(167,139,250,.55); }
+    .btn-ghost {
+        background: rgba(255,255,255,.05);
+        color: #e0e0e0;
+        border: 1px solid rgba(255,255,255,.1);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.12); }
+
+    /* Мобилка */
+    @media (max-width: 600px) {
+        .profile-text h1 { font-size: 26px; }
+        .profile-avatar-wrap { width: 110px; height: 110px; }
+        .profile-avatar-letter { font-size: 48px; }
+        .stats-grid { grid-template-columns: 1fr; }
+        .history-date { display: none; }
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'appname/base.html' %}
+{% block title %}{{ manga.title }} — Глава {{ chapter.number }}{% endblock %}
+{% block content %}
+<h1>{{ manga.title }} — Глава {{ chapter.number }}</h1>
+
+<div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+    {% if prev_chapter %}
+        <a href="{% url 'appname:chapter_read' manga.slug prev_chapter.number %}" class="btn">← Глава {{ prev_chapter.number }}</a>
+    {% endif %}
+    <a href="{{ manga.get_absolute_url }}" class="btn">К списку глав</a>
+    {% if next_chapter %}
+        <a href="{% url 'appname:chapter_read' manga.slug next_chapter.number %}" class="btn">Глава {{ next_chapter.number }} →</a>
+    {% endif %}
+</div>
+
+<div class="reader">
+    {% for page in pages %}
+        <img src="{{ page.image.url }}" alt="Стр. {{ page.number }}">
+    {% empty %}
+        <p>Страницы пока не загружены.</p>
+    {% endfor %}
+</div>
+
+<div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+    {% if prev_chapter %}
+        <a href="{% url 'appname:chapter_read' manga.slug prev_chapter.number %}" class="btn">← Предыдущая</a>
+    {% endif %}
+    {% if next_chapter %}
+        <a href="{% url 'appname:chapter_read' manga.slug next_chapter.number %}" class="btn">Следующая →</a>
+    {% endif %}
+</div>
+{% endblock %}

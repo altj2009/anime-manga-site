@@ -1,0 +1,255 @@
+{% extends 'appname/base.html' %}
+{% load static %}
+
+{% block title %}Аниме-магазины Бишкека{% endblock %}
+
+{% block content %}
+
+<h1>Аниме-магазины Бишкека</h1>
+<p style="color:#a0a0b8; margin-bottom:25px;">
+    Где купить мангу, аниме-мерч, фигурки и найти единомышленников.
+    Клик по адресу — откроется 2ГИС с маршрутом.
+</p>
+
+{# Фильтр по категориям #}
+<div class="shop-filters">
+    <a href="{% url 'appname:shops_map' %}"
+       class="filter-chip {% if not current_category %}active{% endif %}">
+        Все
+    </a>
+    {% for value, label in categories %}
+        <a href="?category={{ value }}"
+           class="filter-chip {% if current_category == value %}active{% endif %}">
+            {{ label }}
+        </a>
+    {% endfor %}
+</div>
+
+{# Сетка магазинов #}
+<div class="shops-grid">
+    {% for shop in shops %}
+    <div class="shop-card">
+        {% if shop.photo %}
+            <img src="{{ shop.photo.url }}" class="shop-photo" alt="{{ shop.name }}">
+        {% else %}
+            <div class="shop-photo shop-photo-placeholder">
+                {% if shop.category == 'manga' %}📚
+                {% elif shop.category == 'merch' %}👕
+                {% elif shop.category == 'figures' %}🗿
+                {% elif shop.category == 'cafe' %}☕
+                {% elif shop.category == 'cosplay' %}🎭
+                {% else %}📦{% endif %}
+            </div>
+        {% endif %}
+
+        <div class="shop-body">
+            <span class="shop-cat">{{ shop.get_category_display }}</span>
+            <h2 class="shop-title">{{ shop.name }}</h2>
+
+            {% if shop.description %}
+                <p class="shop-desc">{{ shop.description|truncatechars:120 }}</p>
+            {% endif %}
+
+            {% if shop.work_hours %}
+                <p class="shop-meta">🕒 {{ shop.work_hours }}</p>
+            {% endif %}
+            {% if shop.phone %}
+                <p class="shop-meta">📞 {{ shop.phone }}</p>
+            {% endif %}
+
+            <div class="shop-actions">
+                <a href="{{ shop.get_2gis_url }}"
+                   target="_blank"
+                   class="shop-btn shop-btn-primary">
+                    📍 Показать на 2ГИС
+                </a>
+                {% if shop.instagram %}
+                    <a href="{{ shop.instagram }}" target="_blank" class="shop-btn shop-btn-ghost">
+                        📷 Instagram
+                    </a>
+                {% endif %}
+                {% if shop.telegram %}
+                    <a href="{{ shop.telegram }}" target="_blank" class="shop-btn shop-btn-ghost">
+                        ✈️ Telegram
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Адрес-полоса внизу карточки #}
+        <a href="{{ shop.get_2gis_url }}" target="_blank" class="shop-address-bar">
+            <span class="pin">📍</span>
+            <span>{{ shop.address }}</span>
+            <span class="arrow">→</span>
+        </a>
+    </div>
+    {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #888;">
+            <div style="font-size: 60px; margin-bottom: 15px;">🗺</div>
+            <h2 style="color: #fff;">Магазинов пока нет</h2>
+            <p>Добавь первый через <a href="/admin/" style="color:#a78bfa;">админку</a>.</p>
+        </div>
+    {% endfor %}
+</div>
+
+<style>
+    .shop-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+    .filter-chip {
+        padding: 8px 16px;
+        background: #1a1a2e;
+        color: #e0e0e0;
+        border-radius: 25px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: background .2s, color .2s;
+        border: 1px solid #2a2a3e;
+    }
+    .filter-chip:hover {
+        background: #2a2a3e;
+        color: #a78bfa;
+    }
+    .filter-chip.active {
+        background: #a78bfa;
+        color: #fff;
+        border-color: #a78bfa;
+    }
+
+    .shops-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 22px;
+        margin-bottom: 40px;
+    }
+
+    .shop-card {
+        background: #1a1a2e;
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform .25s, box-shadow .25s;
+        border: 1px solid rgba(167, 139, 250, 0.1);
+    }
+    .shop-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(167, 139, 250, 0.25);
+        border-color: rgba(167, 139, 250, 0.4);
+    }
+
+    .shop-photo {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    .shop-photo-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        background: linear-gradient(135deg, #2a2a3e, #1a1a2e);
+    }
+
+    .shop-body {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .shop-cat {
+        display: inline-block;
+        font-size: 11px;
+        padding: 3px 10px;
+        background: rgba(167, 139, 250, 0.15);
+        color: #a78bfa;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        align-self: flex-start;
+        font-weight: 600;
+    }
+
+    .shop-title {
+        font-size: 18px;
+        color: #fff;
+        margin: 0 0 10px;
+        font-weight: 700;
+    }
+
+    .shop-desc {
+        color: #a0a0b8;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+        flex: 1;
+    }
+
+    .shop-meta {
+        color: #888;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .shop-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+    }
+    .shop-btn {
+        padding: 8px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: transform .15s, background .2s;
+    }
+    .shop-btn:hover { transform: translateY(-1px); }
+    .shop-btn-primary {
+        background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+        color: #fff;
+        box-shadow: 0 6px 15px rgba(167, 139, 250, .35);
+    }
+    .shop-btn-primary:hover { box-shadow: 0 10px 22px rgba(167, 139, 250, .55); }
+    .shop-btn-ghost {
+        background: rgba(255, 255, 255, 0.05);
+        color: #e0e0e0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .shop-btn-ghost:hover { background: rgba(255, 255, 255, 0.12); }
+
+    .shop-address-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 18px;
+        background: #0f0f1a;
+        color: #c0c0d8;
+        text-decoration: none;
+        font-size: 13px;
+        border-top: 1px solid #2a2a3e;
+        transition: background .2s, color .2s;
+    }
+    .shop-address-bar:hover {
+        background: #2a2a3e;
+        color: #a78bfa;
+    }
+    .shop-address-bar .pin { font-size: 16px; }
+    .shop-address-bar span:nth-child(2) { flex: 1; }
+    .shop-address-bar .arrow {
+        color: #a78bfa;
+        font-size: 18px;
+        transition: transform .2s;
+    }
+    .shop-address-bar:hover .arrow { transform: translateX(4px); }
+
+    @media (max-width: 500px) {
+        .shops-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+{% endblock %}
